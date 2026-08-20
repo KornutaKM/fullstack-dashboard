@@ -35,3 +35,24 @@ func (h *NewsHandler) GetNews(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(news)
 }
+
+func (h *NewsHandler) GetEverything(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("q")
+	if query == "" {
+		query = "Russia"
+	}
+
+	language := r.URL.Query().Get("language")
+	if language == "" {
+		language = "ru"
+	}
+
+	news, err := h.service.GetEverything(r.Context(), query, language)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(news)
+}

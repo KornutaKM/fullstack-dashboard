@@ -75,3 +75,37 @@ func (s *NewsService) GetTopHeadlines(ctx context.Context, country, category str
 
 	return &result, nil
 }
+
+func (s *NewsService) GetEverything(ctx context.Context, query string, language string) (*NewsResponse, error) {
+	baseURL := "https://newsapi.org/v2/everything"
+	params := url.Values{}
+	params.Add("apiKey", s.apiKey)
+	params.Add("q", query)
+	params.Add("language", language)
+	params.Add("pageSize", "5")
+	params.Add("sortBy", "publishedAt")
+
+	fullURL := fmt.Sprintf("%s?%s", baseURL, params.Encode())
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fullURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch news: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("news API returned status: %d", resp.StatusCode)
+	}
+
+	var result NewsResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode news response: %w", err)
+	}
+
+	return &result, nil
+}

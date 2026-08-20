@@ -9,6 +9,7 @@ import (
 	"github.com/KornutaKM/fullstack-dashboard/internal/services"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 func main() {
@@ -33,9 +34,18 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
+	// ----- ДОБАВЛЯЕМ CORS (вот это важно!) -----
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:5174"}, // ← разрешаем фронтенд
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowCredentials: true,
+	}))
+
 	// 5. Роуты
 	r.Get("/api/weather", weatherHandler.GetWeather)
 	r.Get("/api/news", newsHandler.GetNews)
+	r.Get("/api/everything", newsHandler.GetEverything)
 	r.Get("/api/exchange", exchangeHandler.GetExchange)
 
 	// 6. Запускаем сервер

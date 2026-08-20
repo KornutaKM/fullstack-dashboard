@@ -14,6 +14,16 @@ export const api = {
 	getWeather: (city: string = 'Moscow') =>
 		apiClient.get<WeatherResponse>('/weather', { params: { city } }),
 
+	getEverything: (query: string, language: string = 'ru') =>
+		apiClient.get<NewsResponse>('/everything', {
+			params: {
+				q: query,
+				language,
+				pageSize: 5,
+				sortBy: 'publishedAt'
+			}
+		}),
+
 	getNews: (country: string = 'us', category: string = 'general') =>
 		apiClient.get<NewsResponse>('/news', { params: { country, category } }),
 
