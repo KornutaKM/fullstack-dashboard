@@ -4,12 +4,13 @@ import { api } from '../api/client'
 
 
 export function NewsWidget() {
-	const { data, isLoading, error } = useQuery<NewsResponse>({
+	const { data, isLoading, error, refetch } = useQuery<NewsResponse>({
 		queryKey: ["news", 'russia'],
 		queryFn: async () => {
 			const response = await api.getEverything('Russia', 'ru')
 			return response.data
-		}
+		},
+		refetchInterval: 1000 * 30,
 	})
 
 	if (isLoading) {
@@ -35,6 +36,12 @@ export function NewsWidget() {
 	return (
 		<div className="p-4 bg-white rounded-lg shadow">
 			<h2 className="text-xl font-bold mb-2">📰 Новости</h2>
+			<button
+				onClick={() => refetch()}
+				className="text-sm text-blue-500 hover:text-blue-700"
+			>
+				🔄 Обновить
+			</button>
 			<ul className="space-y-2">
 				{data.articles.map((article, index) => (
 					<li key={index} className="border-b border-gray-100 pb-2 last:border-0">
@@ -52,6 +59,9 @@ export function NewsWidget() {
 					</li>
 				))}
 			</ul>
+			<p className="text-xs text-gray-400 mt-3">
+				Обновлено: {new Date().toLocaleTimeString()}
+			</p>
 		</div>
 	)
 }
